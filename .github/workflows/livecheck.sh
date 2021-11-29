@@ -1,6 +1,8 @@
 #!/bin/bash
 set -x
 
+: "${SUB_CMD:=false}"
+
 REPO="${GITHUB_REPOSITORY}"
 if [ -z "${REPO}" ]; then
 	repo_url=$(git remote get-url origin)
@@ -19,9 +21,13 @@ TAP="${REPO/\/homebrew-//}"
 
 
 if [ -z "$1" ]; then
+	if [ "${SUB_CMD}" = "true" ]; then
+		echo "Error when retrive updates."
+		exit 2
+	fi
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
-	brew livecheck --tap "$TAP" | cut -d ' ' -f 1 -f 3 -f 5 | xargs -L 1 bash "$0"
+	brew livecheck --tap "$TAP" | cut -d ' ' -f 1 -f 3 -f 5 | SUB_CMD=true xargs -L 1 bash "$0"
 	exit 0
 fi
 
@@ -30,7 +36,7 @@ old_version=$2
 new_version=$3
 
 if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
-	exit 2
+	exit 3
 fi
 
 latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
