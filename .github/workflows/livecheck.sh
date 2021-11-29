@@ -55,8 +55,9 @@ else
 	exit 1
 fi
 
+file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
+
 update_by_version() {
-	file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
 	# Update version
 	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 	# Update sha256
@@ -106,6 +107,8 @@ update_by_pr() {
 
 
 update_by_push() {
+	git pull --rebase
+	git checkout -- "$file"
 	update_by_version
 	commit_file
 	git pull --rebase
