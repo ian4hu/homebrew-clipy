@@ -55,39 +55,64 @@ else
 	exit 1
 fi
 
-BRANCH="bots-$formula-$new_version"
+update_by_version() {
+	file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
+	# Update version
+	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
+	# Update sha256
+	sha256=$(brew fetch ./Casks/ian4hu-clipy.rb 2>/dev/null | grep 'SHA256' | cut -d ' ' -f 2)
+	sed -E -i -e "s/sha256 \"\\w+\"/sha256 \"${sha256}\"/g" "$file"
 
-git checkout develop -f
-# Clean up
-git branch -D "$BRANCH" -f || true
-git push --delete origin "$BRANCH" || true
+	# Commit to git
+	echo "${formula}: update to ${new_version} with sha256=$sha256"
+}
 
-# Prepare new branch
-git checkout -b "$BRANCH"
-file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
-# Update version
-sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
-# Update sha256
-sha256=$(brew fetch ./Casks/ian4hu-clipy.rb 2>/dev/null | grep 'SHA256' | cut -d ' ' -f 2)
-sed -E -i -e "s/sha256 \"\\w+\"/sha256 \"${sha256}\"/g" "$file"
+commit_file() {
+	# Commit to git
+	echo "${formula}: update to ${new_version} with sha256=$sha256"
+	git add "$file"
+	git --no-pager diff --cached
 
-# Commit to git
-echo "${formula}: update to ${new_version} with sha256=$sha256"
-git add "$file"
-git --no-pager diff --cached
+	git commit -m "$(echo -e "${formula}: update to ${new_version}\n\n This commit has been automatically submitted by Github Actions.")"
+}
 
-git commit -m "$(echo -e "${formula}: update to ${new_version}\n\n This commit has been automatically submitted by Github Actions.")"
+update_by_pr() {
+	BRANCH="bots-$formula-$new_version"
 
-# Push new branch
-git push -u origin "$BRANCH"
+	git checkout develop -f
+	# Clean up
+	git branch -D "$BRANCH" -f || true
+	git push --delete origin "$BRANCH" || true
 
-# 
-pr=$(gh pr create -a '@me' -B develop -H "$BRANCH" -f -t "${formula}: update to ${new_version}" | rev | cut -d / -f 1 | rev)
-gh pr edit --add-label pr-pull
-gh pr review "$pr" -a
-gh pr merge "$pr" --admin --merge
-# recover
-git checkout develop -f
+	# Prepare new branch
+	git checkout -b "$BRANCH"
+	
+	update_by_version
+
+	# Commit to git
+	commit_file
+	# Push new branch
+	git push -u origin "$BRANCH"
+
+	# 
+	pr=$(gh pr create -a '@me' -B develop -H "$BRANCH" -f -t "${formula}: update to ${new_version}" | rev | cut -d / -f 1 | rev)
+	gh pr edit --add-label pr-pull
+	#gh pr review "$pr" -a
+	#gh pr merge "$pr" --auto --merge
+	# recover
+	git checkout develop -f
+
+}
+
+
+update_by_push() {
+	update_by_version
+	commit_file
+	git pull --rebase
+	git push
+}
+
+update_by_push
 
 
 
