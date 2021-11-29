@@ -1,19 +1,37 @@
 #!/bin/bash
+set -x
 
-TAP="ian4hu/clipy"
-REPO="${TAP/\///homebrew-}"
+REPO="${GITHUB_REPOSITORY}"
+if [ -z "${REPO}" ]; then
+	repo_url=$(git remote get-url origin)
+	if [[ $repo_url == git@* ]]; then
+		REPO=$(echo "$repo_url" | cut -d : -f 2 | sed s/\\.git//g)
+	elif [[ $repo_url == https://* || $repo_url == http://* ]]; then
+		REPO=$(echo "$repo_url" | cut -d / -f 4-5 | sed s/\\.git//g)
+	fi
+fi
+
+if [ -z "${REPO}" ]; then
+	exit 1
+fi
+
+TAP="${REPO/\/homebrew-//}"
 
 
 if [ -z "$1" ]; then
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
-	brew livecheck --tap "$TAP" | cut -d' ' -f1 -f3 -f5 | xargs -L 1 bash "$0"
+	brew livecheck --tap "$TAP" | cut -d ' ' -f 1 -f 3 -f 5 | xargs -L 1 bash "$0"
 	exit 0
 fi
 
 formula=$1
 old_version=$2
 new_version=$3
+
+if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
+	exit 2
+fi
 
 latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
 
@@ -39,7 +57,7 @@ git push --delete origin "$BRANCH" || true
 
 # Prepare new branch
 git checkout -b "$BRANCH"
-file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f3-)
+file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
 # Update version
 sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 # Update sha256
@@ -57,7 +75,10 @@ git commit -m "$(echo -e "${formula}: update to ${new_version}\n\n This commit h
 git push -u origin "$BRANCH"
 
 # 
-gh pr create -a '@me' -B develop -H "$BRANCH" -f -t "${formula}: update to ${new_version}"
+pr=$(gh pr create -a '@me' -B develop -H "$BRANCH" -f -t "${formula}: update to ${new_version}" | rev | cut -d / -f 1 | rev)
+gh pr edit --add-label pr-pull
+gh pr review "$pr" -a
+gh pr merge "$pr"
 # recover
 git checkout develop -f
 
