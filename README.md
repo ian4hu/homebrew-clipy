@@ -1,4 +1,4 @@
-# Ian4hu Clipy
+# Clipy (from ian4hu's fork)
 
 ## How do I install these formulae?
 
