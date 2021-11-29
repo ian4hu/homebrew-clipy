@@ -1,6 +1,6 @@
 cask "ian4hu-clipy" do
-  version "1.2.10"
-  sha256 "197eac38b68bfd6ef8040833900d8328c9dd9e4de39e81e5e5a7de5d0a32d15e"
+  version "1.2.11"
+  sha256 "757dfefdab200100f20487cc41ebd7e59de456ae50ff13481dafc0a72f657466"
 
   url "https://github.com/ian4hu/Clipy/releases/download/#{version}/Clipy.app.zip"
   name "Clipy"
