@@ -12,6 +12,8 @@ cask "ian4hu-clipy" do
     strategy :sparkle
   end
 
+  auto_updates true
+
   depends_on macos: ">= :yosemite"
 
   app "Clipy.app"

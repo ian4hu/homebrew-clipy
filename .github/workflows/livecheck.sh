@@ -1,7 +1,21 @@
 #!/bin/bash
+set -x
 
-TAP="ian4hu/clipy"
-REPO="${TAP/\///homebrew-}"
+REPO="${GITHUB_REPOSITORY}"
+if [ -z "${REPO}" ]; then
+	repo_url=$(git remote get-url origin)
+	if [[ $repo_url == git@* ]]; then
+		REPO=$(echo "$repo_url" | cut -d : -f 2 | sed s/\\.git//g)
+	elif [[ $repo_url == https://* || $repo_url == http://* ]]; then
+		REPO=$(echo "$repo_url" | cut -d / -f 4-5 | sed s/\\.git//g)
+	fi
+fi
+
+if [ -z "${REPO}" ]; then
+	exit 1
+fi
+
+TAP="${REPO/\/homebrew-//}"
 
 
 if [ -z "$1" ]; then
@@ -14,6 +28,10 @@ fi
 formula=$1
 old_version=$2
 new_version=$3
+
+if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
+	exit 2
+fi
 
 latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
 
