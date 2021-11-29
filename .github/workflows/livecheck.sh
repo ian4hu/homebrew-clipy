@@ -15,7 +15,7 @@ if [ -z "${REPO}" ]; then
 	exit 1
 fi
 
-TAP="${REPO/\/homebrew-/}"
+TAP="${REPO/\/homebrew-//}"
 
 
 if [ -z "$1" ]; then
@@ -28,6 +28,10 @@ fi
 formula=$1
 old_version=$2
 new_version=$3
+
+if [ -z "$formula" || -z "$old_version" || -z "new_version" ]; then
+	exit 2
+fi
 
 latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
 
