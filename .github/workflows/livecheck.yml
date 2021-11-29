@@ -2,6 +2,8 @@ name: brew livecheck
 on:
   schedule:
     - cron:  '0 */6 * * *'
+  workflow_dispatch:
+    
 jobs:
   livecheck:
     runs-on: ubuntu-latest

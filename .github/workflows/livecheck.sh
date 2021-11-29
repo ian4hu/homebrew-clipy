@@ -55,6 +55,9 @@ git commit -m "$(echo -e "${formula}: update to ${new_version}\n\n This commit h
 
 # Push new branch
 git push -u origin "$BRANCH"
+
+# 
+gh pr create -a '@me' -B develop -H "$BRANCH" -f -t "${formula}: update to ${new_version}"
 # recover
 git checkout develop -f
 
