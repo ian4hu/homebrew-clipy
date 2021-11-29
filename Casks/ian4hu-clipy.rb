@@ -4,10 +4,10 @@ cask "ian4hu-clipy" do
 
   url "https://github.com/ian4hu/Clipy/releases/download/#{version}/Clipy.app.zip"
   name "Clipy"
-  desc "Clipboard extension app for macOS."
+  desc "Clipboard extension app"
   homepage "https://github.com/ian4hu/Clipy"
 
-  livecheck do 
+  livecheck do
     url "https://github.com/ian4hu/Clipy/releases/latest/download/appcast.xml"
     strategy :sparkle
   end
