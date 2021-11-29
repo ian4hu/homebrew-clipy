@@ -27,7 +27,9 @@ if [ -z "$1" ]; then
 	fi
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
-	brew tap "$TAP"
+	brew tap $TAP
+	rm -rf `brew --repo $TAP`
+	ln -s `pwd` `brew --repo $TAP`
 	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
 	exit 0
 fi
