@@ -3,41 +3,16 @@ on:
   schedule:
     - cron:  '0 */6 * * *'
 jobs:
-  pr-pull:
-    if: contains(github.event.pull_request.labels.*.name, 'pr-pull')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
-
-      - name: Set up git
-        uses: Homebrew/actions/git-user-config@master
-
-      - name: Pull bottles
-        env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ github.token }}
-          PULL_REQUEST: ${{ github.event.pull_request.number }}
-        run: brew pr-pull --debug --tap=$GITHUB_REPOSITORY $PULL_REQUEST
-
-      - name: Push commits
-        uses: Homebrew/actions/git-try-push@master
-        with:
-          token: ${{ github.token }}
-          branch: develop
-
-      - name: Delete branch
-        if: github.event.pull_request.head.repo.fork == false
-        env:
-          BRANCH: ${{ github.event.pull_request.head.ref }}
-        run: git push --delete origin $BRANCH
   livecheck:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Set up git
-        uses: Homebrew/actions/git-user-config@master
+      - name: Clone repository
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up tap ian4hu/clipy
         run: brew tap ian4hu/clipy
@@ -46,5 +21,6 @@ jobs:
         run: brew livecheck --tap ian4hu/clipy
 
       - name: Collect updates & commit
-        run: 1
-
+        run: bash .github/workflows/livecheck.sh
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
