@@ -3,7 +3,7 @@ on:
   schedule:
     - cron:  '0 */6 * * *'
   workflow_dispatch:
-    
+
 jobs:
   livecheck:
     runs-on: ubuntu-latest
@@ -14,7 +14,8 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
+          branch: develop
 
       - name: Set up tap ian4hu/clipy
         run: brew tap ian4hu/clipy
@@ -25,4 +26,4 @@ jobs:
       - name: Collect updates & commit
         run: bash .github/workflows/livecheck.sh
         env:
-          GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_API_TOKEN: ${{ github.token }}
