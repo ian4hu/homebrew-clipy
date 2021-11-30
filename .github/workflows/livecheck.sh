@@ -1,9 +1,12 @@
 #!/bin/bash
+set -e -u
+set -o pipefail
 set -x
+
 
 : "${SUB_CMD:=false}"
 
-REPO="${GITHUB_REPOSITORY}"
+REPO="${GITHUB_REPOSITORY-}"
 if [ -z "${REPO}" ]; then
 	repo_url=$(git remote get-url origin)
 	if [[ $repo_url == git@* ]]; then
@@ -20,7 +23,7 @@ fi
 TAP="${REPO/\/homebrew-//}"
 
 
-if [ -z "$1" ]; then
+if [ -z "${1-}" ]; then
 	if [ "${SUB_CMD}" = "true" ]; then
 		echo "Error when retrive updates."
 		exit 2
@@ -28,16 +31,16 @@ if [ -z "$1" ]; then
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
-	local tap_repo=$(brew --repo $TAP)
-	rm -rf "$tap_repo"
-	ln -s `pwd` "$tap_repo"
-	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
+	tap_repo=$(brew --repo $TAP)
+	rm -rf "${tap_repo}"
+	ln -s `pwd` "${tap_repo}"
+	brew livecheck --tap "$TAP" 2>/dev/null | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
 	exit 0
 fi
 
-formula=$1
-old_version=$2
-new_version=$3
+formula=${1-}
+old_version=${2-}
+new_version=${3-}
 
 if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
 	exit 3
