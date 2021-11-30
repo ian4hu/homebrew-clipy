@@ -32,9 +32,10 @@ if [ -z "${1-}" ]; then
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
+	pwd=$(pwd)
 	rm -rf "${tap_repo}"
-	ln -s `pwd` "${tap_repo}"
-	brew livecheck --tap "$TAP" 2>/dev/null | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
+	ln -s "${pwd}" "${tap_repo}"
+	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
 	exit 0
 fi
 
