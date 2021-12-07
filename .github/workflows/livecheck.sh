@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -u
 set -o pipefail
-set -x
+# set -x
 
 
 REPO="${GITHUB_REPOSITORY-}"
@@ -119,7 +119,6 @@ update_by_push() {
 if [ -z "${1-}" ]; then
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
-	rm -rf `brew --repo $TAP`
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
 	cp -rf . "$tap_repo"

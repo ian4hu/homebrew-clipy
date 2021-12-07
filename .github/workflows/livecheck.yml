@@ -23,6 +23,6 @@ jobs:
         run: brew livecheck --tap ian4hu/clipy
 
       - name: Collect updates & commit
-        run: bash .github/workflows/livecheck.sh
+        run: cd $GITHUB_WORKSPACE && bash .github/workflows/livecheck.sh
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
