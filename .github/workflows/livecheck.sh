@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -u
 set -o pipefail
-# set -x
+set -x
 
 
 REPO="${GITHUB_REPOSITORY-}"
@@ -121,7 +121,8 @@ if [ -z "${1-}" ]; then
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
-	cp -rf . "$tap_repo"
+	rm -rf "$tap_repo"
+	ln -s `pwd` "$tap_repo"
 	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
 		update_formula $line
 	done
