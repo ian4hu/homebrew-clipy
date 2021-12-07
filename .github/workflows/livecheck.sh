@@ -4,8 +4,6 @@ set -o pipefail
 set -x
 
 
-: "${SUB_CMD:=false}"
-
 REPO="${GITHUB_REPOSITORY-}"
 if [ -z "${REPO}" ]; then
 	repo_url=$(git remote get-url origin)
@@ -119,15 +117,11 @@ update_by_push() {
 
 
 if [ -z "${1-}" ]; then
-	if [ "${SUB_CMD}" = "true" ]; then
-		echo "Error when retrive updates."
-		exit 2
-	fi
 	git config --local user.name "Github Actions"
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
-	cp -rf ./* "$tap_repo"
+	cp -rf . "$tap_repo"
 	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
 		cp -rf . "$tap_repo"
 		update_formula $line
