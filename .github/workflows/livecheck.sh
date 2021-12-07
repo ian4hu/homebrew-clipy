@@ -122,7 +122,7 @@ if [ -z "${1-}" ]; then
 	brew untap $TAP
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
-	# [[ `stat -L -f '%i' .` == `stat -L -f '%i' "$tap_repo"` ]] || cp -rf . "$tap_repo"
+	cp -rf . "$tap_repo"
 	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
 		update_formula $line
 	done
