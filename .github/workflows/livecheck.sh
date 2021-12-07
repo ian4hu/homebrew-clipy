@@ -58,16 +58,20 @@ update_by_version() {
 	# Update version
 	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 	# Update sha256
-	new_sha256=$(brew fetch "$file" 2>/dev/null || true | grep 'SHA256:' | cut -d ' ' -f 2)
+	new_sha256=$(brew fetch "$file" 2>/dev/null | grep 'SHA256:' | sed 's/SHA256://g' || true)
+	if [[ -z "${new_sha256}" ]]; then
+		echo "${formula}: Can not get sha256 of ${new_version}"
+		exit 4
+	fi
 	sed -i -e "s/sha256 \"${old_sha256}\"/sha256 \"${new_sha256}\"/g" "$file"
 
 	# Commit to git
-	echo "${formula}: update to ${new_version} with sha256=$sha256"
+	echo "${formula}: update to ${new_version} with sha256=$new_sha256"
 }
 
 commit_file() {
 	# Commit to git
-	echo "${formula}: update to ${new_version} with sha256=$sha256"
+	echo "${formula}: update to ${new_version} with sha256=$new_sha256"
 	git add "$file"
 	git --no-pager diff --cached
 
