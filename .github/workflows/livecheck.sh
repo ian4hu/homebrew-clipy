@@ -58,7 +58,7 @@ update_by_version() {
 	# Update version
 	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 	# Update sha256
-	new_sha256=$(brew fetch "$file" 2>/dev/null | grep 'SHA256:' | sed 's/SHA256://g' || true)
+	new_sha256=$(brew fetch "$file" 2>/dev/null | grep 'SHA256:' | sed 's/SHA256: //g' || true)
 	if [[ -z "${new_sha256}" ]]; then
 		echo "${formula}: Can not get sha256 of ${new_version}"
 		exit 4
