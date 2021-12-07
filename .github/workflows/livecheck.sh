@@ -58,7 +58,7 @@ update_by_version() {
 	# Update version
 	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 	# Update sha256
-	new_sha256=$(brew fetch "$file" | grep 'SHA256' | cut -d ' ' -f 2)
+	new_sha256=$(brew fetch "$file" 2>/dev/null || true | grep 'SHA256:' | cut -d ' ' -f 2)
 	sed -i -e "s/sha256 \"${old_sha256}\"/sha256 \"${new_sha256}\"/g" "$file"
 
 	# Commit to git
