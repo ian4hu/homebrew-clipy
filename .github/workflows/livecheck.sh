@@ -121,9 +121,8 @@ if [ -z "${1-}" ]; then
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
-	cp -rf . "$tap_repo"
+	[[ `stat -L -f '%i' .` == `stat -L -f '%i' "$tap_repo"` ]] || cp -rf . "$tap_repo"
 	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
-		cp -rf . "$tap_repo"
 		update_formula $line
 	done
 
