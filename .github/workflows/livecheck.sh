@@ -23,45 +23,34 @@ fi
 TAP="${REPO/\/homebrew-//}"
 
 
-if [ -z "${1-}" ]; then
-	if [ "${SUB_CMD}" = "true" ]; then
-		echo "Error when retrive updates."
-		exit 2
+
+update_formula() {
+	formula=${1-}
+	old_version=${2-}
+	new_version=${3-}
+
+	if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
+		exit 3
 	fi
-	git config --local user.name "Github Actions"
-	git config --local user.email "hu2008yinxiang@163.com"
-	brew tap $TAP
-	tap_repo=$(brew --repo $TAP)
-	rm -rf "${tap_repo}"
-	ln -s "${PWD}" "${tap_repo}"
-	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | SUB_CMD=true xargs -L 1 bash "$0"
-	exit 0
-fi
 
-formula=${1-}
-old_version=${2-}
-new_version=${3-}
+	latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
 
-if [ -z "$formula" ] || [ -z "$old_version" ] || [ -z "$new_version" ]; then
-	exit 3
-fi
+	if [ "${old_version}" = "${new_version}" ]; then
+		echo "Formula/Cask ${formula} version is not changed: ${old_version}."
+		exit 0
+	elif [ "${old_version}" = "${latest_version}" ]; then
+		echo "Formula/Cask ${formula} already up to date: ${old_version}."
+		exit 0
+	elif [ "${new_version}" = "${latest_version}" ]; then
+		echo "Formula/Cask ${formula} ready to update: ${old_version} => ${new_version}."
+	else
+		echo "Formula/Cask ${formula} unexpected version: ${latest_version}."
+		exit 1
+	fi
 
-latest_version=$(printf '%s\n' "${old_version}" "${new_version}" | sort -r -V | head -n 1)
-
-if [ "${old_version}" = "${new_version}" ]; then
-	echo "Formula/Cask ${formula} version is not changed: ${old_version}."
-	exit 0
-elif [ "${old_version}" = "${latest_version}" ]; then
-	echo "Formula/Cask ${formula} already up to date: ${old_version}."
-	exit 0
-elif [ "${new_version}" = "${latest_version}" ]; then
-	echo "Formula/Cask ${formula} ready to update: ${old_version} => ${new_version}."
-else
-	echo "Formula/Cask ${formula} unexpected version: ${latest_version}."
-	exit 1
-fi
-
-file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
+	file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
+	update_by_push
+}
 
 update_by_version() {
 	# Update version
@@ -121,7 +110,24 @@ update_by_push() {
 	git push
 }
 
-update_by_push
 
+
+if [ -z "${1-}" ]; then
+	if [ "${SUB_CMD}" = "true" ]; then
+		echo "Error when retrive updates."
+		exit 2
+	fi
+	git config --local user.name "Github Actions"
+	git config --local user.email "hu2008yinxiang@163.com"
+	brew tap $TAP
+	tap_repo=$(brew --repo $TAP)
+	cp -rf ./* "$tap_repo"
+	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
+		cp -rf . "$tap_repo"
+		update_formula $line
+	done
+
+	exit 0
+fi
 
 
