@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# certbot certonly --manual --preferred-challenges=dns --manual-auth-hook .github/workflows/dns-auth.sh --manual-cleanup-hook .github/workflows/dns-clean.sh -d 'mi-core.com,*.mi-core.com' --logs-dir /tmp --work-dir /tmp  --config-dir /tmp
-# certbot renew --manual --preferred-challenges=dns --manual-auth-hook .github/workflows/dns-auth.sh --manual-cleanup-hook .github/workflows/dns-clean.sh --logs-dir /tmp --work-dir /tmp  --config-dir /tmp
+# certbot certonly --manual -n --agree-tos --email hu2008yinxiang@163.com --preferred-challenges=dns --manual-auth-hook .github/workflows/dns-auth.sh --manual-cleanup-hook .github/workflows/dns-clean.sh -d 'mi-core.com,*.mi-core.com' --logs-dir /tmp --work-dir .  --config-dir /opt/certs
+# certbot renew --manual --logs-dir /tmp --work-dir /tmp  --config-dir /tmp
 
 
 
