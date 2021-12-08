@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# certbot certonly --manual --preferred-challenges=dns --manual-auth-hook .github/workflows/dns-auth.sh --manual-cleanup-hook .github/workflows/dns-clean.sh -d 'mi-core.com,*.mi-core.com' --logs-dir /tmp --work-dir /tmp  --config-dir /tmp
+# certbot renew --manual --preferred-challenges=dns --manual-auth-hook .github/workflows/dns-auth.sh --manual-cleanup-hook .github/workflows/dns-clean.sh --logs-dir /tmp --work-dir /tmp  --config-dir /tmp
+
+
+
 which ggrep && alias grep=ggrep || true
 
 # Strip only the top domain to get the zone id
@@ -11,13 +16,19 @@ OLD_RECORD_ID=$(aliyun alidns DescribeDomainRecords \
   --Type TXT \
   --SearchMode EXACT \
   --KeyWord _acme-challenge \
-  | jq -r '.DomainRecords.Record[].RecordId' \
+  | jq -r '.DomainRecords.Record | map(.RecordId) | join(" ") '\
 )
 
 # Delete old TXT record
-for OLD_RECORD_ID_I in "$OLD_RECORD_ID"; do
-  aliyun alidns DeleteDomainRecord --RecordId "${OLD_RECORD_ID_I}"
-done
+aliyun alidns DescribeDomainRecords \
+  --DomainName "${DOMAIN}" \
+  --Type TXT \
+  --SearchMode EXACT \
+  --KeyWord _acme-challenge \
+  | jq -r '.DomainRecords.Record[].RecordId ' \
+  | while read OLD_RECORD_ID_I || [[ -n "$OLD_RECORD_ID_I" ]]; do
+    aliyun alidns DeleteDomainRecord --RecordId "${OLD_RECORD_ID_I}"
+  done
 
 # Add new TXT record
 NEW_RECORD_ID=$(aliyun alidns AddDomainRecord \
