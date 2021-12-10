@@ -1,10 +1,7 @@
 #!/bin/bash
 
 
-if [ -f /tmp/CERTBOT_$CERTBOT_DOMAIN/RECORD_ID ]; then
-  RECORD_ID=$(cat /tmp/CERTBOT_$CERTBOT_DOMAIN/RECORD_ID)
-  rm -f /tmp/CERTBOT_$CERTBOT_DOMAIN/RECORD_ID
-fi
+RECORD_ID="${CERTBOT_AUTH_OUTPUT}"
 
 # Remove the challenge TXT record from the zone
 
