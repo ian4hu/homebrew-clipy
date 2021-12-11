@@ -3,7 +3,7 @@ set -e -u
 set -o pipefail
 set -x
 
-which ggrep && alias grep=ggrep || true
+GREP_BIN=$(which ggrep || which grep)
 
 REPO="${GITHUB_REPOSITORY-}"
 if [ -z "${REPO}" ]; then
@@ -47,17 +47,17 @@ update_formula() {
 		exit 1
 	fi
 
-	file=$(brew info "$TAP/$formula" | grep "${formula}\\.rb" | grep "${REPO}" | grep -oP "[^/]*/${formula}\\.rb" )
+	file=$(brew info "$TAP/$formula" | "${GREP_BIN}" "${formula}\\.rb" | "${GREP_BIN}" "${REPO}" | "${GREP_BIN}" -oP "[^/]*/${formula}\\.rb" )
 	update_by_push
 }
 
 update_by_version() {
 	# Get old sha256
-	old_sha256=$(grep -oP "sha256 \"\\w+\"" "$file" | sed -e 's/"//g' | cut -d ' ' -f 2)
+	old_sha256=$("${GREP_BIN}" -oP "sha256 \"\\w+\"" "$file" | sed -e 's/"//g' | cut -d ' ' -f 2)
 	# Update version
 	sed -i -e "s/version \"${old_version}\"/version \"${new_version}\"/g" "$file"
 	# Update sha256
-	new_sha256=$(brew fetch "$file" 2>/dev/null | grep 'SHA256:' | sed 's/SHA256: //g' || true)
+	new_sha256=$(brew fetch "$file" 2>/dev/null | "${GREP_BIN}" 'SHA256:' | sed 's/SHA256: //g' || true)
 	if [[ -z "${new_sha256}" ]]; then
 		echo "${formula}: Can not get sha256 of ${new_version}"
 		exit 4
