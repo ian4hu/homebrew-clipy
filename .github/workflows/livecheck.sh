@@ -3,6 +3,7 @@ set -e -u
 set -o pipefail
 set -x
 
+which ggrep && alias grep=ggrep || true
 
 REPO="${GITHUB_REPOSITORY-}"
 if [ -z "${REPO}" ]; then
@@ -46,7 +47,7 @@ update_formula() {
 		exit 1
 	fi
 
-	file=$(brew edit --print-path "$TAP/$formula" | grep -oP "$REPO/.*" | cut -d / -f 3-)
+	file=$(brew info "$TAP/$formula" | grep "${formula}\.rb$" | grep "${REPO}" | grep -oP "[^/]*/${formula}\.rb$" )
 	update_by_push
 }
 
