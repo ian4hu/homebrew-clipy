@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e -u
 set -o pipefail
-#set -x
+set -x
 
 
 REPO="${GITHUB_REPOSITORY-}"
