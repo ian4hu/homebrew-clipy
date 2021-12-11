@@ -47,7 +47,7 @@ update_formula() {
 		exit 1
 	fi
 
-	file=$(brew info "$TAP/$formula" | grep "${formula}\.rb$" | grep "${REPO}" | grep -oP "[^/]*/${formula}\.rb$" )
+	file=$(brew info "$TAP/$formula" | grep "${formula}\\.rb$" | grep "${REPO}" | grep -oP "[^/]*/${formula}\\.rb$" )
 	update_by_push
 }
 
