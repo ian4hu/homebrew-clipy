@@ -9,15 +9,14 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        # uses: Homebrew/actions/setup-homebrew@master
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
       - name: Clone repository
         uses: actions/checkout@v2
-        with:
-          token: ${{ github.token }}
 
       - name: Set up tap ian4hu/clipy
-        run: brew -v && brew install grep jq && (cd /tmp && brew untap -d ian4hu/clipy && brew tap -d ian4hu/clipy)
+        run: brew -v && brew install grep jq && brew tap ian4hu/clipy)
 
       - name: Run brew livecheck
         run: brew livecheck --tap ian4hu/clipy
