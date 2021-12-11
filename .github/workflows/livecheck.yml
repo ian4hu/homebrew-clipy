@@ -17,7 +17,7 @@ jobs:
           token: ${{ github.token }}
 
       - name: Set up tap ian4hu/clipy
-        run: brew -v && brew install grep && brew tap ian4hu/clipy
+        run: brew -v && brew install grep && brew tap -d ian4hu/clipy
 
       - name: Run brew livecheck
         run: brew livecheck --tap ian4hu/clipy
