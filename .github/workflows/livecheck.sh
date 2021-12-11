@@ -122,7 +122,9 @@ if [ -z "${1-}" ]; then
 	git config --local user.email "hu2008yinxiang@163.com"
 	brew tap $TAP
 	tap_repo=$(brew --repo $TAP)
-	brew livecheck --tap "$TAP" | cut -d ' ' -f 1,3,5 | while read line || [[ -n "$line" ]]; do
+	brew livecheck --json --tap "$TAP" \
+	 | jq -r '. | map({cask: .cask, current: .version.current, latest: .version.latest}) | map(.cask + " " + .current + " " + .latest) | .[]' \
+	 | while read line || [[ -n "$line" ]]; do
 		update_formula $line
 	done
 	exit 0
