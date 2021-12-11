@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up tap ian4hu/clipy
-        run: brew -v && brew install grep jq && brew tap ian4hu/clipy)
+        run: brew -v && brew install grep jq && brew tap ian4hu/clipy
 
       - name: Run brew livecheck
         run: brew livecheck --tap ian4hu/clipy
