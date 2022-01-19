@@ -8,9 +8,25 @@ jobs:
   livecheck:
     runs-on: macos-latest
     steps:
+      - name: Get Brew install script
+        id: brew-script
+        run: curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh -o brew-install.sh
+
+      - name: Cache Homebrew Bundler RubyGems
+        id: cache-brew
+        uses: actions/cache@v1
+        with:
+          path: |
+            /usr/local/bin/brew
+            /usr/local/share/doc/homebrew
+            /usr/local/share/man/man1/brew.1
+            /usr/local/share/zsh/site-functions/_brew
+            /usr/local/etc/bash_completion.d/brew
+            /usr/local/Homebrew
+          key: ${{ runner.os }}-brew-${{ hashFiles('brew-install.sh') }}
       - name: Set up Homebrew
         # uses: Homebrew/actions/setup-homebrew@master
-        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        run: /bin/bash -c "$(cat brew-install.sh)"
 
       - name: Clone repository
         uses: actions/checkout@v2
