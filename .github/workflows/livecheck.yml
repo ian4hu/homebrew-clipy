@@ -19,9 +19,9 @@ jobs:
         run: brew -v && brew install grep jq && brew tap ian4hu/clipy
 
       - name: Run brew livecheck
-        run: brew livecheck --tap ian4hu/clipy
+        run: brew livecheck --tap ian4hu/clipy || true
 
       - name: Collect updates & commit
-        run: bash .github/workflows/livecheck.sh
+        run: bash .github/workflows/livecheck.sh || true
         env:
           GITHUB_API_TOKEN: ${{ github.token }}
